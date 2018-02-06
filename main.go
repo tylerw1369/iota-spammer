@@ -30,7 +30,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/iotaledger/giota"
+	"github.com/CWarner818/giota"
 	flag "github.com/ogier/pflag"
 	"github.com/paulbellamy/ratecounter"
 )
