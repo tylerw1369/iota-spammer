@@ -44,10 +44,12 @@ var (
 func init() {
 	rand.Seed(time.Now().UnixNano())
 
+	// Generate random tag suffix to distinguish instances
 	for i := 0; i < 3; i++ {
 		randomTag += string(alphabet[rand.Intn(len(alphabet))])
 	}
 
+	// Send to a random address for easy confirmation checking on thetangle
 	alphabet := alphabet + "9"
 	for i := 0; i < 81; i++ {
 		randomAddress += string(alphabet[rand.Intn(len(alphabet))])
@@ -55,21 +57,17 @@ func init() {
 }
 
 func main() {
-
 	var mwm *int64 = flag.Int64("mwm", 14, "minimum weight magnitude")
 	var depth *int64 = flag.Int64("depth", giota.Depth, "depth for tip finding")
-
 	var destAddress *string = flag.String("address", "<random>", "address to send to")
-
 	var tag *string = flag.String("tag", "999GOPOW9<pow>9<random>", "transaction tag")
-
 	var server *string = flag.String("node", "http://localhost:14265", "remote node to connect to")
 	var remotePoW *bool = flag.Bool("remote-pow", false, "do PoW on remote node using attachToTangle API")
-
 	flag.Parse()
 
 	seed := giota.NewSeed()
 
+	// Set a random address if none was specified
 	if *destAddress == "<random>" {
 		*destAddress = randomAddress
 	}
@@ -81,12 +79,15 @@ func main() {
 	log.Println("Using IRI server:", *server)
 
 	api := giota.NewAPI(*server, nil)
+
+	// Get the most performant PoW method for this system
 	name, pow := giota.GetBestPoW()
 	if *remotePoW {
 		pow = nil
 		name = "attachToTangle"
 	}
 
+	// Set a random tag if the user didnt specify one
 	if *tag == "999GOPOW9<pow>9<random>" {
 		*tag = "999GOPOW9" + strings.ToUpper(name) + "9" + randomTag
 	}
@@ -95,6 +96,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	trs := []giota.Transfer{
 		giota.Transfer{
 			Address: recipientT,
@@ -107,6 +109,7 @@ func main() {
 	log.Println("Using address: http://thetangle.org/address/" + *destAddress)
 	log.Println("Using PoW:", name)
 
+	// Setup 1/5/15 minue average TPS counters
 	r1 := ratecounter.NewRateCounter(1 * time.Minute)
 	r5 := ratecounter.NewRateCounter(5 * time.Minute)
 	r15 := ratecounter.NewRateCounter(15 * time.Minute)
@@ -117,20 +120,20 @@ func main() {
 			continue
 		}
 
+		// This is where the PoW is done right before sending the txn
 		err = giota.SendTrytes(api, *depth, []giota.Transaction(trytes), *mwm, pow)
 		if err != nil {
 			log.Println("Error sending trytes:", err)
 			continue
 		}
-		if err != nil {
-			log.Println("Error broadcasting txn:", err)
-			continue
-		}
+
+		// Increment counters
 		r1.Incr(1)
 		r5.Incr(1)
 		r15.Incr(1)
 
 		log.Println("SENT: http://thetangle.org/transaction/" + trytes[0].Hash())
+		// 1/5/15 min TPS averages
 		log.Printf("TPS: %.3f %.3f %.3f\n", float64(r1.Rate())/float64(60), float64(r5.Rate())/float64(60*5), float64(r15.Rate())/float64(60*15))
 	}
 }
