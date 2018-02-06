@@ -32,6 +32,7 @@ import (
 
 	"github.com/iotaledger/giota"
 	flag "github.com/ogier/pflag"
+	"github.com/paulbellamy/ratecounter"
 )
 
 var (
@@ -106,16 +107,13 @@ func main() {
 	log.Println("Using address: http://thetangle.org/address/" + *destAddress)
 	log.Println("Using PoW:", name)
 
-	var txnCount float64
-	var totalTime float64
-	var good, bad int
-
-	start := time.Now()
+	r1 := ratecounter.NewRateCounter(1 * time.Minute)
+	r5 := ratecounter.NewRateCounter(5 * time.Minute)
+	r15 := ratecounter.NewRateCounter(15 * time.Minute)
 	for {
 		trytes, err := giota.PrepareTransfers(api, seed, trs, nil, "", 1)
 		if err != nil {
 			log.Println("Error preparing transfer:", err)
-			bad++
 			continue
 		}
 
@@ -128,16 +126,11 @@ func main() {
 			log.Println("Error broadcasting txn:", err)
 			continue
 		}
-
-		good++
-		txnCount++
+		r1.Incr(1)
+		r5.Incr(1)
+		r15.Incr(1)
 
 		log.Println("SENT: http://thetangle.org/transaction/" + trytes[0].Hash())
-		dur := time.Since(start)
-		totalTime += dur.Seconds()
-		tps := txnCount / totalTime
-		log.Printf("%.3f TPS -- %.0f%% success", tps, 100*(float64(good)/(float64(good)+float64(bad))))
-
-		txnCount++
+		log.Printf("TPS: %.3f %.3f %.3f\n", float64(r1.Rate())/float64(60), float64(r5.Rate())/float64(60*5), float64(r15.Rate())/float64(60*15))
 	}
 }
