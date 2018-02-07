@@ -10,9 +10,9 @@ script:
   - GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-linux-arm64
   - GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-darwin64
   - GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-win64.exe
-  - chmod 770 spammer-linux-amd64
-  - chmod 770 spammer-linux-arm64
-  - chmod 770 spammer-darwin64
+  - chmod 770 spammer-$TRAVIS_TAG-linux-amd64
+  - chmod 770 spammer-$TRAVIS_TAG-linux-arm64
+  - chmod 770 spammer-$TRAVIS_TAG-darwin64
   - ls
 
 deploy:
