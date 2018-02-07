@@ -2,6 +2,8 @@ language: go
 go:
   - 1.10rc1
 
+if: tag IS present
+
 script:
   - go get -t ./...
   - GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-linux-amd64
@@ -12,8 +14,6 @@ script:
   - chmod 770 spammer-linux-arm64
   - chmod 770 spammer-darwin64
   - ls
-  on:
-    tags: true
 
 deploy:
   provider: releases
