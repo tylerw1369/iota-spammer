@@ -30,7 +30,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CWarner818/giota"
+	"github.com/tylerw1369/iotago"
 	flag "github.com/ogier/pflag"
 	"github.com/paulbellamy/ratecounter"
 )
@@ -61,7 +61,7 @@ func main() {
 	var depth *int64 = flag.Int64("depth", giota.Depth, "depth for tip finding")
 	var destAddress *string = flag.String("address", "<random>", "address to send to")
 	var tag *string = flag.String("tag", "999GOPOW9<pow>9<random>", "transaction tag")
-	var server *string = flag.String("node", "http://localhost:14265", "remote node to connect to")
+	var server *string = flag.String("node", "http://192.168.10.1:14267", "remote node to connect to")
 	var remotePoW *bool = flag.Bool("remote-pow", false, "do PoW on remote node using attachToTangle API")
 	flag.Parse()
 
@@ -88,7 +88,7 @@ func main() {
 	}
 
 	// Set a random tag if the user didnt specify one
-	if *tag == "999GOPOW9<pow>9<random>" {
+	if *tag == "999BOOOM9" {
 		*tag = "999GOPOW9" + strings.ToUpper(name) + "9" + randomTag
 	}
 
