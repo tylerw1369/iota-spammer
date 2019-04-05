@@ -7,7 +7,7 @@ if: tag IS present
 script:
   - go get -t ./...
   - GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-linux-amd64
-  - GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-linux-arm64
+  - GOOS=linux GOARCH=arm32 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-linux-arm32
   - GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-darwin64
   - GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -v -o spammer-$TRAVIS_TAG-win64.exe
   - chmod 770 spammer-$TRAVIS_TAG-linux-amd64
@@ -20,7 +20,7 @@ deploy:
   api_key: $GITHUB_OAUTH_TOKEN
   file:
     - spammer-$TRAVIS_TAG-linux-amd64
-    - spammer-$TRAVIS_TAG-linux-arm64
+    - spammer-$TRAVIS_TAG-linux-arm32
     - spammer-$TRAVIS_TAG-win64.exe
     - spammer-$TRAVIS_TAG-darwin64
   skip_cleanup: true
